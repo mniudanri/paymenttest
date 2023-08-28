@@ -7,12 +7,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.test.payment.paymenttest.constants.Errors;
+import com.test.payment.paymenttest.constants.Message;
 import com.test.payment.paymenttest.controllers.payloads.CreatePaymentRequest;
 import com.test.payment.paymenttest.controllers.payloads.UpdatePaymentRequest;
 import com.test.payment.paymenttest.entities.Inventory;
 import com.test.payment.paymenttest.entities.Payment;
 import com.test.payment.paymenttest.entities.PaymentType;
+import com.test.payment.paymenttest.enums.PaymentTypeEnum;
 import com.test.payment.paymenttest.repositories.InventoryRepository;
 import com.test.payment.paymenttest.repositories.PaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
@@ -33,7 +34,7 @@ public class PaymentService {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Errors.PAYMENT_NOT_FOUND);
+            throw new Exception(Message.PAYMENT_NOT_FOUND);
         }
 
         return paymentOpt.get();
@@ -43,7 +44,7 @@ public class PaymentService {
         if (request.getCustomerId() == 0L 
                 || request.getItemId() == 0L
                 || request.getPaymentTypeId() == 0L) {
-            throw new Exception(Errors.INVALID_REQUEST);
+            throw new Exception(Message.INVALID_REQUEST);
         }
         
         // find the payment type
@@ -51,7 +52,7 @@ public class PaymentService {
 
         if (paymentTypeOpt.isEmpty()) {
             // handling invalid payment type
-            throw new Exception(Errors.PAYMENT_TYPE_NOT_FOUND);
+            throw new Exception(Message.PAYMENT_TYPE_NOT_FOUND);
         }
 
         String typeName = paymentTypeOpt.get().getTypeName();
@@ -62,10 +63,10 @@ public class PaymentService {
                 Optional<Inventory> inventoryOpt = inventoryRepository.findById(request.getItemId());
                 if (inventoryOpt.isEmpty()) {
                     // return handling invalid item
-                    throw new Exception(Errors.ITEM_INVENTORY_NOT_FOUND);
+                    throw new Exception(Message.ITEM_INVENTORY_NOT_FOUND);
                 } else if (inventoryOpt.get().getQuantity() < 1) {
                     // check quantity
-                    throw new Exception(Errors.ITEM_OUT_OF_STOCK);
+                    throw new Exception(Message.ITEM_OUT_OF_STOCK);
                 }
                 
                 createPayment = new Payment(inventoryOpt.get().getPrice(), request.getPaymentTypeId(),
@@ -83,7 +84,7 @@ public class PaymentService {
              
             default:
                 // unsupported paymentType
-                throw new Exception(Errors.UNSUPPORTED_PAYMENT_TYPE);
+                throw new Exception(Message.UNSUPPORTED_PAYMENT_TYPE);
         }
 
         return createPayment;
@@ -93,7 +94,7 @@ public class PaymentService {
         Optional<Payment> paymentOpt = paymentRepository.findById(request.getPaymentId());
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Errors.PAYMENT_NOT_FOUND);
+            throw new Exception(Message.PAYMENT_NOT_FOUND);
         }
 
         Payment payment = paymentOpt.get();
@@ -102,14 +103,18 @@ public class PaymentService {
         if (request.getPaymentTypeId() != 0L
                 && request.getPaymentTypeId() != payment.getPaymentTypeId()) {
             Optional<PaymentType> paymentTypeOpt = paymentTypeRepository.findById(request.getPaymentTypeId());
+            
+            // balance code
+            String balance = PaymentTypeEnum.BALANCE.getCode();
 
-            // validate request's paymentType
+            // validate request's paymentType,
+            // and accept only Balance
             if (paymentTypeOpt.isEmpty()) {
-                // handling invalid payment type
-                throw new Exception(Errors.PAYMENT_TYPE_NOT_FOUND);
-            } else if (!paymentTypeOpt.get().getTypeName().equals("BALANCE")) {
-                // currently support only balance
-                throw new Exception(Errors.UNSUPPORTED_PAYMENT_TYPE);
+                throw new Exception(Message.PAYMENT_TYPE_NOT_FOUND);
+
+            } else if (!paymentTypeOpt.get().getTypeName().equals(balance)) {
+                throw new Exception(Message.UNSUPPORTED_PAYMENT_TYPE);
+
             }
 
             // set new paymentType
@@ -121,10 +126,10 @@ public class PaymentService {
             Optional<Inventory> inventoryOpt = inventoryRepository.findById(request.getItemId());
             if (inventoryOpt.isEmpty()) {
                 // return handling invalid item
-                throw new Exception(Errors.ITEM_INVENTORY_NOT_FOUND);
+                throw new Exception(Message.ITEM_INVENTORY_NOT_FOUND);
             } else if (inventoryOpt.get().getQuantity() < 1) {
                 // check quantity
-                throw new Exception(Errors.ITEM_OUT_OF_STOCK);
+                throw new Exception(Message.ITEM_OUT_OF_STOCK);
             }
 
             // update inventory record
@@ -146,7 +151,7 @@ public class PaymentService {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Errors.PAYMENT_NOT_FOUND);
+            throw new Exception(Message.PAYMENT_NOT_FOUND);
         }
 
         paymentRepository.deleteById(Long.parseLong(id));

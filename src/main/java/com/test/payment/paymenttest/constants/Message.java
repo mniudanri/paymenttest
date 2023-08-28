@@ -1,6 +1,6 @@
 package com.test.payment.paymenttest.constants;
 
-public class Errors {
+public class Message {
     public static final String PAYMENT_NOT_FOUND                = "Payment Not Found!";
 
     public static final String PAYMENT_TYPE_NOT_FOUND           = "Payment Type Not Found!";
