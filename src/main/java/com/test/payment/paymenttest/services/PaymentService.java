@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 import com.test.payment.paymenttest.constants.Message;
 import com.test.payment.paymenttest.controllers.payloads.CreatePaymentRequest;
 import com.test.payment.paymenttest.controllers.payloads.UpdatePaymentRequest;
+import com.test.payment.paymenttest.controllers.responses.DeletePaymentResponse;
 import com.test.payment.paymenttest.entities.Inventory;
 import com.test.payment.paymenttest.entities.Payment;
 import com.test.payment.paymenttest.entities.PaymentType;
+import com.test.payment.paymenttest.enums.ErrorHttpEnum;
 import com.test.payment.paymenttest.enums.PaymentTypeEnum;
+import com.test.payment.paymenttest.helpers.CommonException;
 import com.test.payment.paymenttest.repositories.InventoryRepository;
 import com.test.payment.paymenttest.repositories.PaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
@@ -34,7 +37,7 @@ public class PaymentService {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Message.PAYMENT_NOT_FOUND);
+            throw new CommonException(Message.PAYMENT_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
         }
 
         return paymentOpt.get();
@@ -44,7 +47,7 @@ public class PaymentService {
         if (request.getCustomerId() == 0L 
                 || request.getItemId() == 0L
                 || request.getPaymentTypeId() == 0L) {
-            throw new Exception(Message.INVALID_REQUEST);
+            throw new CommonException(Message.INVALID_REQUEST, ErrorHttpEnum.BAD_REQUEST);
         }
         
         // find the payment type
@@ -52,7 +55,7 @@ public class PaymentService {
 
         if (paymentTypeOpt.isEmpty()) {
             // handling invalid payment type
-            throw new Exception(Message.PAYMENT_TYPE_NOT_FOUND);
+            throw new CommonException(Message.PAYMENT_TYPE_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
         }
 
         String typeName = paymentTypeOpt.get().getTypeName();
@@ -63,10 +66,10 @@ public class PaymentService {
                 Optional<Inventory> inventoryOpt = inventoryRepository.findById(request.getItemId());
                 if (inventoryOpt.isEmpty()) {
                     // return handling invalid item
-                    throw new Exception(Message.ITEM_INVENTORY_NOT_FOUND);
+                    throw new CommonException(Message.ITEM_INVENTORY_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
                 } else if (inventoryOpt.get().getQuantity() < 1) {
                     // check quantity
-                    throw new Exception(Message.ITEM_OUT_OF_STOCK);
+                    throw new CommonException(Message.ITEM_OUT_OF_STOCK, ErrorHttpEnum.BAD_REQUEST);
                 }
                 
                 createPayment = new Payment(inventoryOpt.get().getPrice(), request.getPaymentTypeId(),
@@ -84,7 +87,7 @@ public class PaymentService {
              
             default:
                 // unsupported paymentType
-                throw new Exception(Message.UNSUPPORTED_PAYMENT_TYPE);
+                throw new CommonException(Message.UNSUPPORTED_PAYMENT_TYPE, ErrorHttpEnum.BAD_REQUEST);
         }
 
         return createPayment;
@@ -94,7 +97,7 @@ public class PaymentService {
         Optional<Payment> paymentOpt = paymentRepository.findById(request.getPaymentId());
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Message.PAYMENT_NOT_FOUND);
+            throw new CommonException(Message.PAYMENT_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
         }
 
         Payment payment = paymentOpt.get();
@@ -110,10 +113,10 @@ public class PaymentService {
             // validate request's paymentType,
             // and accept only Balance
             if (paymentTypeOpt.isEmpty()) {
-                throw new Exception(Message.PAYMENT_TYPE_NOT_FOUND);
+                throw new CommonException(Message.PAYMENT_TYPE_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
 
             } else if (!paymentTypeOpt.get().getTypeName().equals(balance)) {
-                throw new Exception(Message.UNSUPPORTED_PAYMENT_TYPE);
+                throw new CommonException(Message.UNSUPPORTED_PAYMENT_TYPE, ErrorHttpEnum.BAD_REQUEST);
 
             }
 
@@ -126,10 +129,12 @@ public class PaymentService {
             Optional<Inventory> inventoryOpt = inventoryRepository.findById(request.getItemId());
             if (inventoryOpt.isEmpty()) {
                 // return handling invalid item
-                throw new Exception(Message.ITEM_INVENTORY_NOT_FOUND);
+                throw new CommonException(Message.ITEM_INVENTORY_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
+
             } else if (inventoryOpt.get().getQuantity() < 1) {
                 // check quantity
-                throw new Exception(Message.ITEM_OUT_OF_STOCK);
+                throw new CommonException(Message.ITEM_OUT_OF_STOCK, ErrorHttpEnum.BAD_REQUEST);
+
             }
 
             // update inventory record
@@ -147,15 +152,19 @@ public class PaymentService {
         return paymentOpt.get();
     }
 
-    public String deletePayment(String id) throws Exception {
+    public DeletePaymentResponse deletePayment(String id) throws Exception {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
         if (paymentOpt.isEmpty()) {
-            throw new Exception(Message.PAYMENT_NOT_FOUND);
+            throw new CommonException(Message.PAYMENT_NOT_FOUND, ErrorHttpEnum.BAD_REQUEST);
+
         }
 
         paymentRepository.deleteById(Long.parseLong(id));
         
-        return "SUCCESS";
+        DeletePaymentResponse deletePaymentResponse = new DeletePaymentResponse();
+        deletePaymentResponse.setPaymentId(id);
+
+        return deletePaymentResponse;
     }
 }

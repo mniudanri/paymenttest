@@ -1,6 +1,8 @@
 package com.test.payment.paymenttest.constants;
 
 public class Message {
+    public static final String COMMON_SUCCESS_MSG               = "Success";
+
     public static final String PAYMENT_NOT_FOUND                = "Payment Not Found!";
 
     public static final String PAYMENT_TYPE_NOT_FOUND           = "Payment Type Not Found!";
@@ -12,4 +14,6 @@ public class Message {
     public static final String UNSUPPORTED_PAYMENT_TYPE         = "Unsupported Payment Type!";
 
     public static final String INVALID_REQUEST                  = "Invalid Request!";
+
+    public static final String INTERNAL_SERVER_ERROR            = "Internal Server Error";
 }

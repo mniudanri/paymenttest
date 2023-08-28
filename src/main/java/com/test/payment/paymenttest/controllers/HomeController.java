@@ -3,6 +3,8 @@ package com.test.payment.paymenttest.controllers;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,51 +24,64 @@ public class HomeController {
 
     // retrieve all payment records
     @GetMapping("payments")
-    public Map<String, Object> getPayments() {
-       return ApiResponse.getCommonResponse(paymentService.getPayments(), "SUCCESS");
+    public ResponseEntity<Map<String, Object>> getPayments() {
+       return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ApiResponse.getCommonResponse(paymentService.getPayments(), null));
     }
 
     // retrieve payment record by paymentId
     @GetMapping("payment/paymentId/{paymentId}")
-    public Map<String, Object> getPaymentById( @PathVariable("paymentId") String id) {
+    public ResponseEntity<Map<String, Object>> getPaymentById( @PathVariable("paymentId") String id) {
          try {
-            return ApiResponse.getCommonResponse(paymentService.getPaymentById(id), "SUCCESS");
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.getCommonResponse(paymentService.getPaymentById(id), null));
 
         } catch (Exception e) {
-            return ApiResponse.getCommonResponse(null, e.getMessage());
+            return ApiResponse.getErrorResponse(HttpStatus.BAD_REQUEST, e);
         }
     }
 
     // create payment record
     @PostMapping("payment")
-    public Map<String, Object> createPayment(@RequestBody CreatePaymentRequest createRequest) {
+    public ResponseEntity<Map<String, Object>> createPayment(@RequestBody CreatePaymentRequest createRequest) {
         try {
-            return ApiResponse.getCommonResponse(paymentService.createPayment(createRequest), "SUCCESS");
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.getCommonResponse(paymentService.createPayment(createRequest), null));
 
         } catch (Exception e) {
-            return ApiResponse.getCommonResponse(null, e.getMessage());
+                return ApiResponse.getErrorResponse(HttpStatus.BAD_REQUEST, e);
+
         }
     }
 
     // update payment record
     @PutMapping("payment")
-    public Map<String, Object> updatePayment(@RequestBody UpdatePaymentRequest updateRequest) {
+    public ResponseEntity<Map<String, Object>> updatePayment(@RequestBody UpdatePaymentRequest updateRequest) {
          try {
-            return ApiResponse.getCommonResponse(paymentService.updatePayment(updateRequest), "SUCCESS");
+            
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.getCommonResponse(paymentService.updatePayment(updateRequest), null));
 
         } catch (Exception e) {
-            return ApiResponse.getCommonResponse(null, e.getMessage());
+            return ApiResponse.getErrorResponse(HttpStatus.BAD_REQUEST, e);
+
         }
     }
 
     // delete payment record
     @DeleteMapping("payment/paymentId/{paymentId}")
-    public Map<String, Object> updatePayment(@PathVariable("paymentId") String paymentId) {
+    public ResponseEntity<Map<String, Object>> updatePayment(@PathVariable("paymentId") String paymentId) {
          try {
-            return ApiResponse.getCommonResponse(paymentService.deletePayment(paymentId), "SUCCESS");
-
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.getCommonResponse(paymentService.deletePayment(paymentId), null));
         } catch (Exception e) {
-            return ApiResponse.getCommonResponse(null, e.getMessage());
+            return ApiResponse.getErrorResponse(HttpStatus.BAD_REQUEST, e);
+
         }
     }
 }
