@@ -1,5 +1,7 @@
 package com.test.payment.paymenttest.entities;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,10 +24,20 @@ public class Payment {
     private long paymentTypeId;
 
     @Column(name = "date")
-    private String date;
+    private Date date;
 
     @Column(name = "customer_id")
     private long customerId;
+
+    public Payment() {}
+    
+    public Payment (long amount, long paymentTypeId,
+                        Date date, long customerId) {
+        this.amount = amount;
+        this.paymentTypeId = paymentTypeId;
+        this.date = date;
+        this.customerId = customerId;
+    }
 
     public long getId() {
         return id;
@@ -51,11 +63,11 @@ public class Payment {
         this.paymentTypeId = paymentTypeId;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

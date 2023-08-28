@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "payment_type")
 public class PaymentType {
+    public PaymentType() {}
+
     @Id
     @Column(name = "payment_type_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
