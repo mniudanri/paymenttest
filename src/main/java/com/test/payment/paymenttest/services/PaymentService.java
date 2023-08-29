@@ -20,6 +20,7 @@ import com.test.payment.paymenttest.entities.PaymentType;
 import com.test.payment.paymenttest.enums.ErrorHttpEnum;
 import com.test.payment.paymenttest.enums.PaymentTypeEnum;
 import com.test.payment.paymenttest.helpers.CommonException;
+import com.test.payment.paymenttest.helpers.DateHelper;
 import com.test.payment.paymenttest.repositories.InventoryRepository;
 import com.test.payment.paymenttest.repositories.PaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
@@ -27,18 +28,44 @@ import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
 @Service
 public class PaymentService {
     @Autowired PaymentRepository paymentRepository;
+
     @Autowired PaymentTypeRepository paymentTypeRepository;
+
     @Autowired InventoryRepository inventoryRepository;
 
+    /**
+     * getPayments for getting payment records when access API GET payments,
+     * see {@link com.test.payment.paymenttest.controllers.HomeController#getPayments} 
+     * 
+     * @param customerId int
+     * @param paymentTypeId int
+     * @param strDate Optional<String>
+     * @param paymentId Optional<Integer>
+     * @param page int
+     * @param size int
+     * @return List Payment
+     * @throws CommonException
+     */
+    public List<Payment> getPayments(int customerId, int paymentTypeId, Optional<String> strDate, Optional<Integer> paymentId, int page, int size) throws CommonException {
 
-
-    public List<Payment> getPayments(int page, int size) {
         Pageable paging = PageRequest.of(page, size);
-        Page<Payment> pagedResult = paymentRepository.findAll(paging);
+
+        Date temp;
+        Optional<Date> date = ((temp = DateHelper.getDateFromStr(strDate)) != null) ? Optional.of(temp) : Optional.empty();
+
+        Page<Payment> pagedResult = paymentRepository.findAllByCustomerIdAndPaymentTypeIdAndDateAndIdWithPagination(customerId, paymentTypeId, date, paymentId, paging);
 
         return pagedResult.toList();
     }
 
+    /**
+     * getPaymentById for getting a payment record when access API GET payment by ID,
+     * see {@link com.test.payment.paymenttest.controllers.HomeController#getPaymentById} 
+     * 
+     * @param id
+     * @return Payment
+     * @throws Exception
+     */
     public Payment getPaymentById(String id) throws Exception {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
@@ -49,6 +76,15 @@ public class PaymentService {
         return paymentOpt.get();
     }
 
+    /**
+     * 
+     * getPaymentById for creating a payment record when access API POST payment,
+     * see {@link com.test.payment.paymenttest.controllers.HomeController#createPayment} 
+     * 
+     * @param request
+     * @return Payment
+     * @throws Exception
+     */
     public Payment createPayment(CreatePaymentRequest request) throws Exception {
         if (request.getCustomerId() == 0L 
                 || request.getItemId() == 0L
@@ -99,6 +135,15 @@ public class PaymentService {
         return createPayment;
     }
 
+    /**
+     * 
+     * getPaymentById for updating a payment record when access API PUT payment,
+     * see {@link com.test.payment.paymenttest.controllers.HomeController#updatePayment} 
+     * 
+     * @param request
+     * @return Payment
+     * @throws Exception
+     */
     public Payment updatePayment(UpdatePaymentRequest request) throws Exception {
         Optional<Payment> paymentOpt = paymentRepository.findById(request.getPaymentId());
         
@@ -158,6 +203,15 @@ public class PaymentService {
         return paymentOpt.get();
     }
 
+    /**
+     * 
+     * getPaymentById for deleting a payment record when access API DELETE payment,
+     * see {@link com.test.payment.paymenttest.controllers.HomeController#deletePayment} 
+     * 
+     * @param id
+     * @return DeletePaymentResponse contains deleted ID
+     * @throws Exception
+     */
     public DeletePaymentResponse deletePayment(String id) throws Exception {
         Optional<Payment> paymentOpt = paymentRepository.findById(Long.parseLong(id));
         
