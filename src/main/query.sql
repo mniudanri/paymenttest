@@ -2,7 +2,7 @@ CREATE TABLE payment (
 	"payment_id" SERIAL PRIMARY KEY,
 	"amount" INTEGER NOT NULL,
 	"payment_type_id" BIGINT NOT NULL,
-	"date" TIMESTAMPTZ DEFAULT now(),
+	"date" Date DEFAULT now(),
 	"customer_id" BIGINT NOT NULL
 );
 
