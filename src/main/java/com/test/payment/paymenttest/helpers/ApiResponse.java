@@ -28,6 +28,7 @@ public class ApiResponse {
 
             status = HttpStatus.BAD_GATEWAY;
             message = Message.INTERNAL_SERVER_ERROR;
+            e.printStackTrace();
         }
         
         return ResponseEntity
