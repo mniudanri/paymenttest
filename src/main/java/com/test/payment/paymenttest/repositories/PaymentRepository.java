@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -32,8 +33,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
      * @param pageable
      * @return
      */
+    
     @Query(value = "SELECT id, amount, customerId, date, paymentTypeId FROM Payment WHERE customerId=?1 AND paymentTypeId=?2 AND (date=?3 OR CAST(?3 AS DATE) IS NULL) AND (id=?4 OR ?4 IS NULL)")
-    Page<Payment> findAllByCustomerIdAndPaymentTypeIdAndDateAndIdWithPagination(
+    Slice<Payment> findAllByCustomerIdAndPaymentTypeIdAndDateAndId (
         int customerId,
         int paymentTypeId,
         Optional<Date> date,

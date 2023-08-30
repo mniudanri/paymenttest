@@ -1,15 +1,19 @@
 package com.test.payment.paymenttest.services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.engine.jdbc.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import com.test.payment.paymenttest.constants.CommonConstant;
 import com.test.payment.paymenttest.constants.Message;
 import com.test.payment.paymenttest.controllers.payloads.CreatePaymentRequest;
 import com.test.payment.paymenttest.controllers.payloads.UpdatePaymentRequest;
@@ -22,6 +26,7 @@ import com.test.payment.paymenttest.enums.PaymentTypeEnum;
 import com.test.payment.paymenttest.helpers.CommonException;
 import com.test.payment.paymenttest.helpers.DateHelper;
 import com.test.payment.paymenttest.repositories.InventoryRepository;
+import com.test.payment.paymenttest.repositories.NoCountPaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
 
@@ -47,15 +52,42 @@ public class PaymentService {
      * @throws CommonException
      */
     public List<Payment> getPayments(int customerId, int paymentTypeId, Optional<String> strDate, Optional<Integer> paymentId, int page, int size) throws CommonException {
-
-        Pageable paging = PageRequest.of(page, size);
-
         Date temp;
         Optional<Date> date = ((temp = DateHelper.getDateFromStr(strDate)) != null) ? Optional.of(temp) : Optional.empty();
+        
+        Pageable paging;
+        Slice<Payment> slicedResult;
 
-        Page<Payment> pagedResult = paymentRepository.findAllByCustomerIdAndPaymentTypeIdAndDateAndIdWithPagination(customerId, paymentTypeId, date, paymentId, paging);
+        List<Payment> paymentList = new ArrayList<>();
+        
+        int maxSize = CommonConstant.MAX_BATCH_SIZE;
+        int currSize = size;
+        int currPage = page;
+        int processedSize = 0;
 
-        return pagedResult.toList();
+        // handling big size request
+        // check max size per batch at CommonConstant#MAX_BATCH_SIZE
+        do {
+            // check and update current size
+            currSize = (currSize >= maxSize) ? maxSize : (size - processedSize);
+
+            // init pagination
+            paging = PageRequest.of(currPage, currSize);
+
+            // query
+            slicedResult = paymentRepository.findAllByCustomerIdAndPaymentTypeIdAndDateAndId(customerId, paymentTypeId, date, paymentId, paging);
+            
+            // add to list result
+            paymentList.addAll(slicedResult.getContent());
+
+            // update page and total proccesed size
+            processedSize += currSize;
+            currPage++;
+
+        } while (processedSize < size && !slicedResult.isEmpty());
+
+
+        return paymentList;
     }
 
     /**
