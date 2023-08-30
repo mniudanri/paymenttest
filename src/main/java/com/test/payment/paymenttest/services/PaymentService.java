@@ -5,9 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.engine.jdbc.Size;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,7 +24,6 @@ import com.test.payment.paymenttest.enums.PaymentTypeEnum;
 import com.test.payment.paymenttest.helpers.CommonException;
 import com.test.payment.paymenttest.helpers.DateHelper;
 import com.test.payment.paymenttest.repositories.InventoryRepository;
-import com.test.payment.paymenttest.repositories.NoCountPaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentRepository;
 import com.test.payment.paymenttest.repositories.PaymentTypeRepository;
 
