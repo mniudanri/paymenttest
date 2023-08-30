@@ -1,5 +1,6 @@
 package com.test.payment.paymenttest.constants;
 
+// Message stores response message for general usage 
 public class Message {
     public static final String COMMON_SUCCESS_MSG               = "Success";
 

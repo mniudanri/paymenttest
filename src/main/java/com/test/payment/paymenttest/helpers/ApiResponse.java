@@ -10,6 +10,14 @@ import com.test.payment.paymenttest.constants.Message;
 import com.test.payment.paymenttest.constants.Severity;
 
 public class ApiResponse {
+    /**
+     * getCommonResponse to compose API response
+     * 
+     * @param <T> generic type
+     * @param data T
+     * @param error string
+     * @return Map<String, Object>
+     */
     public static <T> Map<String, Object> getCommonResponse(T data, String error) {
         Map<String, Object> response =  new HashMap<>();
         response.put("data", data);
@@ -18,6 +26,14 @@ public class ApiResponse {
         return response;
     }
 
+    /**
+     * 
+     * getErrorResponse to hanle exception
+     * 
+     * @param defaultError HttpStatus
+     * @param e Exception
+     * @return ResponseEntity
+     */
     public static ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus defaultError, Exception e) {
         HttpStatus status = defaultError;
         String message = e.getMessage();
