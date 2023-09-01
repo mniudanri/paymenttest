@@ -2,7 +2,7 @@
 Simple Payment Project
 
 ## Description
-Project used as technical test for Tokopedia
+Simple Payment Application
 
 ## Getting Started
 ### Dependencies
