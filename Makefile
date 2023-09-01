@@ -5,11 +5,12 @@ app_dependencies:
 	mvn clean install -DskipTests
 
 app_build:
+	rm -rf target
 	mvn clean package -DskipTests
 	docker-compose build --no-cache
 
 app_run:
-	docker-compose up
+	java -jar .\target\paymenttest-0.0.1-SNAPSHOT.jar
 
 app_build_package:
 	mvn clean package -DskipTests
@@ -17,4 +18,13 @@ app_build_package:
 clear_build_app:
 	docker builder prune
 
-.PHONY: network app_dependencies run_app run_build
+refresh_db_data:
+	sh ./refresh_sb.sh
+
+createdb:
+	docker exec -it posgresdb createdb --username=root --owner=root postgres
+
+dropdb:
+	docker exec -it posgresdb dropdb postgres
+
+.PHONY: network app_dependencies run_app app_build
