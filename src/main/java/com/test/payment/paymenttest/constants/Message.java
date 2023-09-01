@@ -17,4 +17,7 @@ public class Message {
     public static final String INVALID_REQUEST                  = "Invalid Request!";
 
     public static final String INTERNAL_SERVER_ERROR            = "Internal Server Error";
+
+    public static final String CUSTOMER_ID_CANNOT_BE_DIFFERENT  = "Customer ID cannot be different from the previous!";
+
 }

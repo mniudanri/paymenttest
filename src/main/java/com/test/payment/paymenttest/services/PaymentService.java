@@ -198,6 +198,9 @@ public class PaymentService {
             } else if (!paymentTypeOpt.get().getTypeName().equals(balance)) {
                 throw new CommonException(Message.UNSUPPORTED_PAYMENT_TYPE, ErrorHttpEnum.BAD_REQUEST);
 
+            } else if (request.getCustomerId() != paymentOpt.get().getCustomerId()) {
+                throw new CommonException(Message.CUSTOMER_ID_CANNOT_BE_DIFFERENT, ErrorHttpEnum.BAD_REQUEST);
+
             }
 
             // set new paymentType
@@ -223,7 +226,7 @@ public class PaymentService {
             inventoryRepository.save(inventory);
 
             // set new amount item
-            payment.setAmount(request.getItemId());
+            payment.setAmount(inventory.getPrice());
         }
         
         // update payment record
